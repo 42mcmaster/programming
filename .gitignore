@@ -1,0 +1,28 @@
+# Teacher materials - do not push to student repo
+# **/teacher/
+
+# Quiz and assessment files
+*.csv
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# C compiled files
+*.exe
+*.o
+*.out
+*.i
+*.s
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
