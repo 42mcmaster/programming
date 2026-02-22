@@ -35,9 +35,11 @@
 
 ### What to Turn In
 
-- Analysis for your 2 chosen tasks (charts, findings, and recommendations)
-- Screenshots of your AI prompts and responses
-- **Reflection (3-5 sentences):** What did AI do well? What did you have to fix? Would you trust AI to do this alone?
+A GOOGLE DOC organized by the two tasks you choose from the list above.  The Google Doc must have: 
+- Screenshots of your results which should include: 
+-   Analysis for your 2 chosen tasks (charts, findings, and recommendations)
+-   Screenshots of your AI prompts and responses
+- * *Reflection (3-5 sentences):** What did AI do well? What did you have to fix? Would you trust AI to do this alone?
 
 ---
 
