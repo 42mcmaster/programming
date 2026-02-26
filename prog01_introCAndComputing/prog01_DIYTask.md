@@ -1,168 +1,187 @@
-# prog01 DIY Task — Memory Explorer
+# prog01 DIY Challenge — Memory Explorer
 
-## Overview
+**Programming — Medina County Career Center**
 
-This is a hands-on challenge task designed for students who finish the main lessons early or who want to explore memory management in C at a deeper level. You will write a program that interacts directly with the computer's memory, observing how C allocates space on the **stack** and the **heap**.
+---
 
-## Learning Objectives
+## What Is This?
 
-By completing this task, you will:
-- Understand how different data types use memory
-- See the actual memory addresses where your variables are stored
-- Learn the difference between stack and heap allocation
-- Practice using `malloc()` and `free()` for dynamic memory
-- Understand array layout in memory
+This is an optional challenge for students who finish the main task files and want to go deeper. You'll write a program that peeks under the hood at how C stores data in memory — seeing actual memory addresses and understanding the difference between the stack and the heap.
 
-## The Task
+---
 
-Write a C program named `memory_explorer.c` that demonstrates memory allocation and addresses.
+## What You'll Learn
 
-### Requirements
+- How different data types use different amounts of memory
+- What memory addresses look like and how to print them
+- The difference between stack memory (automatic) and heap memory (manual)
+- How to use `malloc()` and `free()` for dynamic memory allocation
+- How arrays are laid out in memory (spoiler: everything is in a row)
 
-Your program must:
+---
 
-1. **Declare stack variables** of different types:
-   - One `int`
-   - One `float`
-   - One `char`
-   - One `double`
+## Part 1: Walkthrough — Seeing Memory (Copy-Paste)
 
-2. **Print the memory address** of each variable using `printf` with the `%p` format specifier
+**Copy and paste** this program into a file called `memory_peek.c`:
 
-3. **Print the size in bytes** of each variable using the `sizeof` operator
+```c
+#include <stdio.h>
 
-4. **Allocate a heap array** of 5 integers using `malloc()`
+int main() {
+    int age = 17;
+    float gpa = 3.5;
+    char letter = 'A';
 
-5. **Print the heap array's address** and compare it visually to the stack addresses (they should be very different!)
+    printf("=== Where do variables live? ===\n\n");
 
-6. **Populate the array** with some sample values (e.g., 10, 20, 30, 40, 50)
+    printf("age    = %d\n", age);
+    printf("  Address: %p\n", (void*)&age);
+    printf("  Size:    %zu bytes\n\n", sizeof(age));
 
-7. **Print all array values** to verify they were stored correctly
+    printf("gpa    = %.1f\n", gpa);
+    printf("  Address: %p\n", (void*)&gpa);
+    printf("  Size:    %zu bytes\n\n", sizeof(gpa));
 
-8. **Free the allocated memory** using `free()`
+    printf("letter = '%c'\n", letter);
+    printf("  Address: %p\n", (void*)&letter);
+    printf("  Size:    %zu byte\n\n", sizeof(letter));
 
-9. **BONUS (optional):** Print the address of each array element and show that they are contiguous in memory (each element is typically 4 bytes apart for an int array)
+    printf("Notice: all three addresses are close together.\n");
+    printf("That's because they all live on the STACK.\n");
 
-### Starter Code
+    return 0;
+}
+```
+
+Compile and run it:
+```
+gcc memory_peek.c -o memory_peek.exe
+./memory_peek.exe
+```
+
+**Question:** How many bytes does an `int` use? A `float`? A `char`?
+
+```
+YOUR ANSWER:
+
+
+```
+
+**What to notice:**
+- `&age` gives you the **address** of the variable (where it lives in memory)
+- `(void*)` is a cast needed for `%p` to work properly
+- `sizeof()` tells you how many bytes a variable uses
+- All three addresses should look similar — they're all on the **stack**
+
+---
+
+## Part 2: The Challenge
+
+Now write your own program called `memory_explorer.c` that does the following:
+
+### Step 1: Stack Variables
+
+Declare one variable of each type and give them values:
+- `int` (try 42)
+- `float` (try 3.14)
+- `char` (try 'X')
+- `double` (try 2.71828)
+
+For each one, print its value, its address (`%p`), and its size (`sizeof`).
+
+### Step 2: Heap Allocation
+
+Allocate an array of 5 integers on the **heap** using `malloc()`:
+
+```c
+#include <stdlib.h>  // You need this for malloc and free
+
+int *arr = (int *)malloc(5 * sizeof(int));
+```
+
+After allocating:
+- Check that `arr` is not `NULL` (malloc can fail if memory runs out)
+- Print the address of the array
+- Fill it with values: 10, 20, 30, 40, 50
+- Print all the values using a loop
+- **Free the memory** when you're done: `free(arr);`
+
+### Step 3: Compare Stack vs Heap
+
+Print the address of one of your stack variables and the heap array side by side. Notice how different they are — the stack and heap are in completely different regions of memory.
+
+### Bonus: Array Element Addresses
+
+Print the address of each element in your heap array:
+
+```c
+for (int i = 0; i < 5; i++) {
+    printf("arr[%d] at address %p\n", i, (void*)&arr[i]);
+}
+```
+
+You should see that each address is exactly 4 bytes apart (because each `int` is 4 bytes). This proves that arrays store elements **contiguously** in memory — one right after the other.
+
+---
+
+## Starter Code
 
 ```c
 #include <stdio.h>
 #include <stdlib.h>
 
 int main() {
-    // PART 1: Declare stack variables of different types
-    int my_int;           // Stack: integer
-    float my_float;       // Stack: floating-point
-    char my_char;         // Stack: single character
-    double my_double;     // Stack: double-precision float
+    // === STEP 1: Stack Variables ===
+    // Declare and initialize: int, float, char, double
+    // Print each one's value, address, and size
 
-    // PART 2: Assign values to the stack variables
-    // YOUR CODE HERE: Assign a value to my_int (try 42)
+    // === STEP 2: Heap Allocation ===
+    // Allocate an array of 5 ints with malloc
+    // Check for NULL
+    // Fill with values 10, 20, 30, 40, 50
+    // Print all values
+    // Free the memory
 
-    // YOUR CODE HERE: Assign a value to my_float (try 3.14)
+    // === STEP 3: Compare ===
+    // Print a stack address and the heap address to compare
 
-    // YOUR CODE HERE: Assign a value to my_char (try 'A')
-
-    // YOUR CODE HERE: Assign a value to my_double (try 2.71828)
-
-
-    // PART 3: Print addresses and sizes of stack variables
-    printf("=== STACK MEMORY ===\n");
-    printf("int:    Address = %p,  Size = %lu bytes\n", // YOUR CODE HERE: Add (void*)&my_int
-    printf("float:  Address = %p,  Size = %lu bytes\n", // YOUR CODE HERE: Add (void*)&my_float
-    printf("char:   Address = %p,  Size = %lu bytes\n", // YOUR CODE HERE: Add (void*)&my_char
-    printf("double: Address = %p,  Size = %lu bytes\n", // YOUR CODE HERE: Add (void*)&my_double
-
-    printf("\nObservation: Stack addresses are typically CLOSE TOGETHER (within a few bytes).\n\n");
-
-
-    // PART 4: Allocate an array on the heap
-    printf("=== HEAP MEMORY ===\n");
-    int* arr = NULL;  // Pointer to array
-
-    // YOUR CODE HERE: Use malloc to allocate space for 5 integers
-    // Hint: arr = (int*)malloc(5 * sizeof(int));
-
-
-    // PART 5: Check if malloc succeeded
-    if (arr == NULL) {
-        printf("Error: malloc failed!\n");
-        return 1;
-    }
-
-    printf("Heap array allocated at address: %p\n", (void*)arr);
-    printf("Size of allocated memory: %lu bytes\n\n", 5 * sizeof(int));
-
-
-    // PART 6: Fill the heap array with values
-    // YOUR CODE HERE: Set arr[0] = 10
-    // YOUR CODE HERE: Set arr[1] = 20
-    // YOUR CODE HERE: Set arr[2] = 30
-    // YOUR CODE HERE: Set arr[3] = 40
-    // YOUR CODE HERE: Set arr[4] = 50
-
-
-    // PART 7: Print all array values
-    printf("=== ARRAY VALUES ===\n");
-    for (int i = 0; i < 5; i++) {
-        printf("arr[%d] = %d\n", i, arr[i]);
-    }
-
-    printf("\n");
-
-
-    // BONUS: Print addresses of each array element
-    printf("=== BONUS: ARRAY ELEMENT ADDRESSES ===\n");
-    // YOUR CODE HERE: Uncomment and complete the loop below
-    // for (int i = 0; i < 5; i++) {
-    //     printf("arr[%d] at address %p\n", i, (void*)&arr[i]);
-    // }
-
-    // Observation: Notice that each address differs by 4 bytes
-    // (because each int is 4 bytes on most systems)
-
-    printf("\n");
-
-
-    // PART 8: Free the allocated memory
-    // YOUR CODE HERE: Call free(arr) to release the heap memory
-
-    printf("Memory freed. Program complete!\n");
+    // === BONUS: Element Addresses ===
+    // Print the address of each array element
 
     return 0;
 }
 ```
 
-## What to Observe
+---
 
-When you run this program, notice:
+## What to Observe When You Run It
 
-1. **Stack addresses** are relatively close to each other (printed in hex with `%p`)
-2. **Heap address** is typically much higher than stack addresses
-3. **Size of each type**: `int` and `float` are usually 4 bytes, `double` is usually 8 bytes, `char` is usually 1 byte
-4. **Array elements** (BONUS) are contiguous—each element address is 4 bytes higher than the previous (for int arrays)
+1. **Stack addresses** are close together (within a few bytes of each other)
+2. **Heap address** is typically in a very different range than stack addresses
+3. **Type sizes:** `char` = 1 byte, `int` = 4 bytes, `float` = 4 bytes, `double` = 8 bytes
+4. **Array elements** (bonus) have addresses exactly 4 bytes apart for `int` arrays
 
-## Compilation and Testing
+---
 
-Compile with:
-```bash
-gcc -o memory_explorer memory_explorer.c
+## Compilation
+
+```
+gcc memory_explorer.c -o memory_explorer.exe
+./memory_explorer.exe
 ```
 
-Run with:
-```bash
-./memory_explorer
-```
+---
 
 ## Stretch Ideas
 
-If you finish early and want to push further:
+If you finish and want to keep exploring:
+- Allocate an array of `double` instead and see how the address spacing changes (should be 8 bytes apart)
+- Try allocating multiple small arrays and see where they end up in heap memory
+- Look up `calloc()` — it's like `malloc()` but it initializes everything to zero
+- What happens if you try to use the array *after* calling `free()`? (Don't do this in production code, but it's interesting to see)
 
-- Modify the program to allocate an array of `double` values and compare the spacing (should be 8 bytes apart)
-- Use a loop to allocate and print multiple smaller arrays, observing how they are positioned in heap memory
-- Investigate `calloc()` as an alternative to `malloc()`
-- Write code to print the stack and heap addresses relative to each other (calculate the difference)
+---
 
 ## Submission
 
-Save your completed file as `memory_explorer.c` and test it thoroughly before submitting.
+Save your completed `memory_explorer.c` and make sure it compiles and runs without errors or warnings before submitting.
