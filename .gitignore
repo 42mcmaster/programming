@@ -1,5 +1,5 @@
 # Teacher materials - do not push to student repo
-# **/teacher/
+**/teacher/
 
 # Quiz and assessment files
 *.csv
