@@ -10,9 +10,11 @@ Today you're going to set up the Arduino IDE, connect your Arduino Uno R4 WiFi b
 
 ---
 
-## Part 1 — Install the Arduino IDE
+## Part 1 — Open the Arduino IDE (Install at home if you'd like)
 
-### Download the IDE
+We have the IDE and the board preinstalled on our machines at MCCC, but if you need to download the IDE and install the board (maybe from home), you can follow these instructions: 
+
+### Download the IDE if needed
 
 1. Open a browser and search for **"Arduino IDE download"**
 2. Go to [https://www.arduino.cc/en/software](https://www.arduino.cc/en/software)
@@ -49,7 +51,7 @@ This installs the drivers and tools needed to compile code for the R4 WiFi.
    - On Windows, it will look like `COM5` or `COM7`
    - On Mac, it will look like `/dev/cu.usbmodem...`
 
-**Pro tip:** If you ever get upload errors, the first thing to check is that the correct board and port are selected.
+**Tip:** If you ever get upload errors, the first thing to check is that the correct board and port are selected.
 
 ---
 
