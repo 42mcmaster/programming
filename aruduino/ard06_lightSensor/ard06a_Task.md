@@ -7,16 +7,15 @@
 
 ## The Scenario
 
-You will replicate that annoying chime your car makes when you leave the door open. 
+You will replicate the various annoying things like the chime your car makes when you leave the door open or the fridge. 
 
-Your photoresistor is the door sensor — when the "door" opens, light hits the sensor. Your system needs to:
+Your photoresistor will act as the door sensor — when the "door" opens, light hits the sensor. Your system needs to:
 
 1. **Detect** when the door opens (light level rises above a threshold)
 2. **Show status** with LEDs — green for closed, red for open
 3. **Sound an alarm** with a buzzer that gets more urgent the longer the door stays open
 
-This is, of course, a simplified version of how real car door ajar systems work — a sensor detects the state, a dash indicator lights up, and the car chimes at you until you close it.
-
+This is, of course, a simplified version of how real car door ajar systems work — a sensor detects the state, a dash indicator lights up, and the car chimes at you until you close it (and your fridge).
 ---
 
 ## What You Need
