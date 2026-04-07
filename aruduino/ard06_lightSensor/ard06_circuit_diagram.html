@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 — Photoresistor Circuit Diagram</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #ffffff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+  }
+  .page {
+    width: 1100px;
+    background: #fff;
+  }
+  h1 {
+    font-size: 22px;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+  svg {
+    display: block;
+    margin: 0 auto;
+  }
+  /* Label styles */
+  .label-box {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 12px;
+  }
+  .label-title {
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .label-detail {
+    font-size: 11px;
+    fill: #444;
+  }
+  .callout-bg {
+    rx: 6;
+    ry: 6;
+  }
+  .wire-5v { stroke: #d42020; stroke-width: 2.5; fill: none; }
+  .wire-gnd { stroke: #1a1a1a; stroke-width: 2.5; fill: none; }
+  .wire-signal { stroke: #2070d4; stroke-width: 2.5; fill: none; }
+  .wire-led { stroke: #20a040; stroke-width: 2.5; fill: none; }
+
+  .component-outline { stroke: #333; stroke-width: 1.5; fill: none; }
+
+  .tip-box {
+    background: #fff8e1;
+    border: 1px solid #f0c040;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #5a4800;
+    line-height: 1.5;
+  }
+  .tip-box strong { color: #7a5c00; }
+
+  .legend {
+    display: flex;
+    gap: 24px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #333;
+  }
+  .legend-swatch {
+    width: 28px;
+    height: 4px;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Lesson 06: Photoresistor + LED Circuit</h1>
+  <div class="subtitle">Programming — Medina County Career Center &nbsp;|&nbsp; Matches the Science Buddies video walkthrough</div>
+
+  <svg viewBox="0 0 1060 620" width="1060" height="620" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrowBlack" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L8,3 L0,6 Z" fill="#333"/>
+      </marker>
+      <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L8,3 L0,6 Z" fill="#2070d4"/>
+      </marker>
+      <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L8,3 L0,6 Z" fill="#d42020"/>
+      </marker>
+    </defs>
+
+    <!-- ==================== ARDUINO BOARD ==================== -->
+    <rect x="30" y="80" width="200" height="440" rx="12" ry="12" fill="#0074b7" stroke="#005a8e" stroke-width="2"/>
+    <text x="130" y="115" text-anchor="middle" fill="white" font-size="20" font-weight="700" font-family="Arial">ARDUINO</text>
+    <text x="130" y="135" text-anchor="middle" fill="white" font-size="13" font-family="Arial">UNO R3</text>
+
+    <!-- USB connector -->
+    <rect x="95" y="60" width="70" height="30" rx="4" fill="#888" stroke="#666" stroke-width="1.5"/>
+    <text x="130" y="80" text-anchor="middle" fill="white" font-size="9" font-family="Arial">USB</text>
+
+    <!-- Pin labels on Arduino -->
+    <!-- Power pins (left side) -->
+    <rect x="38" y="165" width="60" height="20" rx="3" fill="#fff3" stroke="#fff6" stroke-width="1"/>
+    <text x="68" y="179" text-anchor="middle" fill="white" font-size="11" font-weight="600" font-family="monospace">5V</text>
+    <circle cx="108" cy="175" r="5" fill="#d42020" stroke="white" stroke-width="1.5"/>
+
+    <rect x="38" y="195" width="60" height="20" rx="3" fill="#fff3" stroke="#fff6" stroke-width="1"/>
+    <text x="68" y="209" text-anchor="middle" fill="white" font-size="11" font-weight="600" font-family="monospace">GND</text>
+    <circle cx="108" cy="205" r="5" fill="#1a1a1a" stroke="white" stroke-width="1.5"/>
+
+    <!-- Analog pins (left side, lower) -->
+    <rect x="38" y="310" width="60" height="20" rx="3" fill="#fff3" stroke="#fff6" stroke-width="1"/>
+    <text x="68" y="324" text-anchor="middle" fill="white" font-size="11" font-weight="600" font-family="monospace">A0</text>
+    <circle cx="108" cy="320" r="5" fill="#2070d4" stroke="white" stroke-width="1.5"/>
+
+    <!-- Digital pin 8 (right side) -->
+    <rect x="162" y="280" width="60" height="20" rx="3" fill="#fff3" stroke="#fff6" stroke-width="1"/>
+    <text x="192" y="294" text-anchor="middle" fill="white" font-size="11" font-weight="600" font-family="monospace">Pin 8</text>
+    <circle cx="152" cy="290" r="5" fill="#20a040" stroke="white" stroke-width="1.5"/>
+
+    <!-- ==================== BREADBOARD ==================== -->
+    <rect x="340" y="100" width="360" height="420" rx="8" fill="#f0ede5" stroke="#c0b8a8" stroke-width="2"/>
+    <text x="520" y="130" text-anchor="middle" fill="#999" font-size="11" font-family="Arial">BREADBOARD</text>
+
+    <!-- Power rails -->
+    <!-- + rail (top) -->
+    <line x1="360" y1="150" x2="680" y2="150" stroke="#d42020" stroke-width="2" stroke-dasharray="4,3"/>
+    <text x="695" y="154" fill="#d42020" font-size="11" font-weight="700" font-family="monospace">+ (5V)</text>
+    <!-- - rail (bottom) -->
+    <line x1="360" y1="480" x2="680" y2="480" stroke="#1a1a1a" stroke-width="2" stroke-dasharray="4,3"/>
+    <text x="695" y="484" fill="#1a1a1a" font-size="11" font-weight="700" font-family="monospace">− (GND)</text>
+
+    <!-- Row dots for reference -->
+    <!-- Row A (photoresistor leg 1 - 5V side) at y=210 -->
+    <circle cx="420" cy="210" r="4" fill="#ccc" stroke="#aaa" stroke-width="1"/>
+    <circle cx="445" cy="210" r="4" fill="#ccc" stroke="#aaa" stroke-width="1"/>
+    <circle cx="470" cy="210" r="4" fill="#ccc" stroke="#aaa" stroke-width="1"/>
+    <text x="360" y="214" fill="#888" font-size="10" font-family="monospace">row 5</text>
+
+    <!-- Row B (junction - photoresistor leg 2 + 10K + A0) at y=280 -->
+    <circle cx="420" cy="280" r="4" fill="#ccc" stroke="#aaa" stroke-width="1"/>
+    <circle cx="445" cy="280" r="4" fill="#ccc" stroke="#aaa" stroke-width="1"/>
+    <circle cx="470" cy="280" r="4" fill="#ccc" stroke="#aaa" stroke-width="1"/>
+    <circle cx="495" cy="280" r="4" fill="#ccc" stroke="#aaa" stroke-width="1"/>
+    <text x="360" y="284" fill="#888" font-size="10" font-family="monospace">row 10</text>
+
+    <!-- Row C (10K resistor other leg) at y=440 - goes to GND rail -->
+
+    <!-- Row D (LED area) at y=210 right side -->
+    <circle cx="560" cy="210" r="4" fill="#ccc" stroke="#aaa" stroke-width="1"/>
+    <circle cx="585" cy="210" r="4" fill="#ccc" stroke="#aaa" stroke-width="1"/>
+    <text x="603" y="214" fill="#888" font-size="10" font-family="monospace">row 20</text>
+    <circle cx="560" cy="250" r="4" fill="#ccc" stroke="#aaa" stroke-width="1"/>
+    <circle cx="585" cy="250" r="4" fill="#ccc" stroke="#aaa" stroke-width="1"/>
+    <text x="603" y="254" fill="#888" font-size="10" font-family="monospace">row 21</text>
+
+    <!-- ==================== PHOTORESISTOR ==================== -->
+    <!-- Body -->
+    <circle cx="445" cy="245" r="28" fill="#c8a860" stroke="#8a6c30" stroke-width="2"/>
+    <path d="M432,238 Q440,248 435,255 Q442,245 450,252 Q445,240 455,245" stroke="#6a5020" stroke-width="1.5" fill="none"/>
+    <!-- Legs -->
+    <line x1="432" y1="273" x2="432" y2="280" stroke="#888" stroke-width="2.5"/>
+    <line x1="458" y1="217" x2="458" y2="210" stroke="#888" stroke-width="2.5"/>
+
+    <!-- ==================== 10K RESISTOR ==================== -->
+    <!-- From row 10 down to GND rail -->
+    <line x1="470" y1="280" x2="470" y2="320" stroke="#888" stroke-width="2"/>
+    <rect x="458" y="320" width="24" height="70" rx="4" fill="#d4a060" stroke="#9a7040" stroke-width="1.5"/>
+    <!-- Resistor bands -->
+    <line x1="460" y1="333" x2="480" y2="333" stroke="#6b3a1a" stroke-width="2.5"/>
+    <line x1="460" y1="343" x2="480" y2="343" stroke="#111" stroke-width="2.5"/>
+    <line x1="460" y1="353" x2="480" y2="353" stroke="#e07020" stroke-width="2.5"/>
+    <line x1="460" y1="368" x2="480" y2="368" stroke="#c8a040" stroke-width="2.5"/>
+    <line x1="470" y1="390" x2="470" y2="480" stroke="#888" stroke-width="2"/>
+
+    <!-- ==================== LED ==================== -->
+    <!-- LED body -->
+    <path d="M572,218 L560,242 L585,242 Z" fill="#40cc60" stroke="#20a040" stroke-width="1.5"/>
+    <line x1="572" y1="242" x2="572" y2="250" stroke="#888" stroke-width="2"/>
+    <line x1="572" y1="210" x2="572" y2="218" stroke="#888" stroke-width="2"/>
+    <!-- Flat edge indicator on cathode side -->
+    <line x1="563" y1="242" x2="582" y2="242" stroke="#20a040" stroke-width="2.5"/>
+
+    <!-- 220 ohm resistor for LED (from row 21 to GND) -->
+    <line x1="572" y1="250" x2="572" y2="310" stroke="#888" stroke-width="2"/>
+    <rect x="560" y="310" width="24" height="55" rx="4" fill="#d4a060" stroke="#9a7040" stroke-width="1.5"/>
+    <line x1="562" y1="322" x2="582" y2="322" stroke="#d42020" stroke-width="2.5"/>
+    <line x1="562" y1="330" x2="582" y2="330" stroke="#d42020" stroke-width="2.5"/>
+    <line x1="562" y1="338" x2="582" y2="338" stroke="#6b3a1a" stroke-width="2.5"/>
+    <line x1="562" y1="350" x2="582" y2="350" stroke="#c8a040" stroke-width="2.5"/>
+    <line x1="572" y1="365" x2="572" y2="480" stroke="#888" stroke-width="2"/>
+
+    <!-- ==================== WIRES ==================== -->
+
+    <!-- 5V wire: Arduino 5V → + rail → row 5 (photoresistor leg 1) -->
+    <path d="M 108 175 L 280 175 Q 290 175 290 165 L 290 150 L 360 150" class="wire-5v"/>
+    <line x1="458" y1="150" x2="458" y2="210" class="wire-5v"/>
+    <text x="460" y="185" fill="#d42020" font-size="9" font-family="monospace">5V</text>
+
+    <!-- GND wire: Arduino GND → - rail -->
+    <path d="M 108 205 L 275 205 Q 285 205 285 215 L 285 480 L 360 480" class="wire-gnd"/>
+
+    <!-- A0 wire: Arduino A0 → row 10 (junction) -->
+    <path d="M 108 320 L 280 320 Q 295 320 295 300 L 295 280 L 420 280" class="wire-signal"/>
+
+    <!-- Pin 8 wire: Arduino pin 8 → LED long leg row -->
+    <path d="M 152 290 L 250 290 Q 265 290 265 270 L 265 210 L 560 210" class="wire-led"/>
+
+    <!-- ==================== CALLOUT LABELS ==================== -->
+
+    <!-- Photoresistor label -->
+    <rect x="760" y="185" width="270" height="68" rx="6" fill="#fff8e0" stroke="#d4a030" stroke-width="1.5"/>
+    <text x="775" y="206" class="label-title" fill="#7a5c00" font-family="Arial">PHOTORESISTOR (LDR)</text>
+    <text x="775" y="222" class="label-detail" font-family="Arial">Squiggly pattern on face</text>
+    <text x="775" y="237" class="label-detail" font-family="Arial">Bright light → low resistance → higher voltage</text>
+    <text x="775" y="247" class="label-detail" font-family="Arial" font-size="10">Either leg can go in either direction</text>
+    <line x1="760" y1="230" x2="490" y2="245" stroke="#d4a030" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowBlack)"/>
+
+    <!-- Junction / A0 label -->
+    <rect x="760" y="270" width="270" height="62" rx="6" fill="#e0eeff" stroke="#2070d4" stroke-width="1.5"/>
+    <text x="775" y="291" class="label-title" fill="#1a5090" font-family="Arial">JUNCTION → A0</text>
+    <text x="775" y="307" class="label-detail" font-family="Arial">This row connects the photoresistor,</text>
+    <text x="775" y="321" class="label-detail" font-family="Arial">the 10KΩ resistor, AND the A0 wire</text>
+    <line x1="760" y1="300" x2="500" y2="280" stroke="#2070d4" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowBlue)"/>
+
+    <!-- 10K resistor label -->
+    <rect x="760" y="350" width="270" height="56" rx="6" fill="#f5f0e5" stroke="#9a7040" stroke-width="1.5"/>
+    <text x="775" y="371" class="label-title" fill="#6a4a20" font-family="Arial">10KΩ RESISTOR</text>
+    <text x="775" y="387" class="label-detail" font-family="Arial">Brown-Black-Orange-Gold</text>
+    <text x="775" y="397" class="label-detail" font-family="Arial" font-size="10">Completes the voltage divider to GND</text>
+    <line x1="760" y1="375" x2="485" y2="355" stroke="#9a7040" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowBlack)"/>
+
+    <!-- LED label -->
+    <rect x="760" y="90" width="270" height="80" rx="6" fill="#e5ffe5" stroke="#20a040" stroke-width="1.5"/>
+    <text x="775" y="111" class="label-title" fill="#1a7030" font-family="Arial">LED</text>
+    <text x="775" y="127" class="label-detail" font-family="Arial">Long leg (+) = ANODE → faces Pin 8</text>
+    <text x="775" y="143" class="label-detail" font-family="Arial">Short leg (−) = CATHODE → faces GND</text>
+    <text x="775" y="158" class="label-detail" font-family="Arial" font-size="10">Flat edge on the plastic = cathode side</text>
+    <line x1="760" y1="130" x2="590" y2="225" stroke="#20a040" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowBlack)"/>
+
+    <!-- LED + / - indicators right on the component -->
+    <text x="548" y="207" fill="#20a040" font-size="14" font-weight="700" font-family="Arial">+</text>
+    <text x="548" y="263" fill="#888" font-size="14" font-weight="700" font-family="Arial">−</text>
+
+    <!-- 220 ohm resistor label -->
+    <rect x="760" y="425" width="270" height="48" rx="6" fill="#f5f0e5" stroke="#9a7040" stroke-width="1.5"/>
+    <text x="775" y="446" class="label-title" fill="#6a4a20" font-family="Arial">220Ω RESISTOR (for LED)</text>
+    <text x="775" y="462" class="label-detail" font-family="Arial">Red-Red-Brown-Gold — protects LED</text>
+    <line x1="760" y1="450" x2="588" y2="340" stroke="#9a7040" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowBlack)"/>
+
+    <!-- Wire color legend at bottom of SVG -->
+    <rect x="30" y="560" width="700" height="40" rx="6" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>
+    <text x="45" y="583" font-size="11" font-weight="700" fill="#555" font-family="Arial">WIRE COLORS:</text>
+    <line x1="170" y1="580" x2="200" y2="580" stroke="#d42020" stroke-width="3"/>
+    <text x="206" y="584" font-size="11" fill="#555" font-family="Arial">Red = 5V</text>
+    <line x1="290" y1="580" x2="320" y2="580" stroke="#1a1a1a" stroke-width="3"/>
+    <text x="326" y="584" font-size="11" fill="#555" font-family="Arial">Black = GND</text>
+    <line x1="420" y1="580" x2="450" y2="580" stroke="#2070d4" stroke-width="3"/>
+    <text x="456" y="584" font-size="11" fill="#555" font-family="Arial">Blue = Signal (A0)</text>
+    <line x1="580" y1="580" x2="610" y2="580" stroke="#20a040" stroke-width="3"/>
+    <text x="616" y="584" font-size="11" fill="#555" font-family="Arial">Green = Pin 8 (LED)</text>
+
+  </svg>
+
+  <div class="tip-box">
+    <strong>Voltage Divider Tip:</strong> The photoresistor and 10KΩ resistor work together. As light increases, the photoresistor's resistance drops, which pushes the voltage at A0 higher. The Arduino reads this as a number from 0 (dark) to ~900+ (bright flashlight). The 10KΩ resistor is necessary — without it, the circuit doesn't produce a changing voltage for the Arduino to read.
+  </div>
+
+</div>
+</body>
+</html>
