@@ -108,7 +108,7 @@ const char* pass = WIFI_PASS;
 // To find your station: https://api.weather.gov/points/LAT,LON
 // then look at the observationStations list
 String station = "KCAK";          // ICAO station code
-int br = 115200;                   // Baud rate
+int br = 19200;                   // Baud rate
 unsigned long fetchInterval = 300000;  // 5 minutes between fetches (in ms)
 
 // Weather data
@@ -187,7 +187,7 @@ void showScrolling(const String& text) {
 }
 ```
 
-3. **Upload** and open the **Serial Monitor** (set to 115200 baud)
+3. **Upload** and open the **Serial Monitor** (set to 19200 baud)
 
 **What you should see:**
 - Serial Monitor prints dots while connecting, then "Connected!" with an IP address
@@ -309,7 +309,7 @@ void fetchWeather() {
 ### Upload and Test
 
 1. Upload the code
-2. Open the Serial Monitor (115200 baud)
+2. Open the Serial Monitor (19200 baud)
 3. Wait for WiFi to connect, then watch for the weather data
 
 **What you should see in Serial Monitor:**

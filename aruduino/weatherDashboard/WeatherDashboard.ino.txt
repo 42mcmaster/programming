@@ -1,76 +1,87 @@
 /*
-  UNO R4 WiFi - Weather Dashboard (WeatherAPI.com)
-  Scrolls temperature + condition on the 12x8 LED matrix.
+  Weather Dashboard — Medina County Career Center
 
-  Included in this Solution:-
-      Board Package:
-        Arduino Renesas UNO R4 Boards v 1.5.1
+  PURPOSE:
+  Connects to WiFi, fetches current weather data from the
+  National Weather Service (NWS) API, and displays it on
+  the Arduino UNO R4 built-in LED matrix.
 
-      External Libraries Included in this Solution:
-        ArduinoGraphics v1.1.4
-        ArduinoJson v7.4.2
+  HOW IT WORKS:
+  - Connects to WiFi using credentials from Secrets.h
+  - Sends a request to the NWS weather API
+  - Parses the JSON response (temperature, condition, humidity)
+  - Scrolls the weather data across the LED matrix
+  - Re-fetches new data every set time interval
 
-Debug Options (No Additional Hardware Needed!):-
-    Serial Debugger (+Plot Charts)
-    Hardware Debugger
+  NOTES:
+  - No API key required (NWS is free/public)
+  - Uses JSON parsing via ArduinoJson library
 */
 
-#include <ArduinoJson.hpp>
-#include "ArduinoGraphics.h"
-#include "Arduino_LED_Matrix.h"
-#include <WiFiS3.h>
-#include <ArduinoJson.h>
-#include "Secrets.h"
+#include <WiFiS3.h>            // WiFi library for Arduino UNO R4 WiFi
+#include <ArduinoJson.h>       // library for reading JSON data from API
+#include "ArduinoGraphics.h"   // graphics support for LED matrix
+#include "Arduino_LED_Matrix.h"// controls the built-in LED matrix
+#include "Secrets.h"           // contains WIFI_SSID and WIFI_PASS
 
-ArduinoLEDMatrix matrix;
+ArduinoLEDMatrix matrix;       // create LED matrix object
 
-const char* ssid = WIFI_SSID;
-const char* pass = WIFI_PASS;
+// WiFi credentials (pulled from Secrets.h)
+const char* ssid = WIFI_SSID;  // network name
+const char* pass = WIFI_PASS;  // network password
 
-// WeatherAPI endpoint (free tier)
-const char* host = "api.weatherapi.com";
-String apiKey = API_KEY;
-String city = "Birmingham";
+// NWS API settings — Akron-Canton Airport weather station
+String station = "KCAK";       // ICAO weather station code
+int br = 19200;                // baud rate for Serial Monitor
+unsigned long fetchInterval = 300000;
+// time between weather updates (300,000 ms = 5 minutes)
 
-// Data fields
-String weatherText = "Starting... ";
-float  tempC = 0.0;
-String conditionText;
+// Weather data variables (store latest API results)
+String weatherText = "Starting... "; // text to scroll on matrix
+float tempF = 0.0;                  // temperature (float allows decimals)
+String condition = "";              // weather condition (e.g., "Cloudy")
+int humidity = 0;                   // humidity percentage
 
-unsigned long lastFetch = 0;
-const unsigned long FETCH_INTERVAL_MS = 5UL * 60UL * 1000UL; // 5 min
+unsigned long lastFetch = 0;        // stores last time data was fetched
 
-WiFiClient client;
 
 void setup() {
-    Serial.begin(115200);
-    matrix.begin();
+    Serial.begin(br);               // start serial communication at baud rate
+    delay(1000);                   // wait 1 second for Serial to initialize
+    matrix.begin();                // initialize LED matrix hardware
 
-#if VM_DEBUG_GDB
-    delay(5000); // Allow GDB to attach if in Debug Mode
-#endif
+    // Connect to WiFi
+    Serial.print("Connecting to WiFi"); // print status message
+    WiFi.begin(ssid, pass);        // attempt to connect to WiFi network
 
-    Serial.print("Connecting to Wi-Fi");
-    WiFi.begin(ssid, pass);
-
-    while (WiFi.status() != WL_CONNECTED) {
-        Serial.print(".");
-        delay(500);
+    while (WiFi.status() != WL_CONNECTED) { // loop until connected
+        Serial.print(".");         // print dots while waiting
+        delay(500);               // wait half a second between attempts
     }
-    Serial.println("\nConnected!");
-    showScrolling("Wi-Fi OK ");
 
-    fetchWeather();  // initial
+    Serial.println();              // move to next line in Serial Monitor
+    Serial.println("Connected!");  // confirm successful connection
+    Serial.print("IP: ");          // label for IP address
+    Serial.println(WiFi.localIP()); // print device's IP address
+
+    showScrolling("WiFi OK ");     // display confirmation on LED matrix
+
+    // Fetch weather right away when program starts
+    fetchWeather();                // call function to get weather data
 }
 
+
 void loop() {
-    if (millis() - lastFetch >= FETCH_INTERVAL_MS) {
-        fetchWeather();
+    unsigned long now = millis();  // get current time (ms since start)
+
+    // Check if enough time has passed to fetch new data
+    if (now - lastFetch >= fetchInterval) {
+        fetchWeather();            // get updated weather data
     }
     else {
-        // Just keep showing the last information we received repeatedly
-        showScrolling(weatherText);
-        lastFetch = millis();
+        // Keep scrolling the last weather info
+        showScrolling(weatherText); // display current weather text
     }
-    delay(1000);
+
+    delay(1000);                  // wait 1 second before repeating loop
 }

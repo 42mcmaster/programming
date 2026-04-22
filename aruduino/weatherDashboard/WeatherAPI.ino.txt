@@ -1,49 +1,136 @@
-/* -------------------- WeatherAPI.com fetch -------------------- */
+/*
+  WeatherAPI.ino — Fetch Weather from api.weather.gov
+
+  PURPOSE:
+  Connects to the National Weather Service (NWS) API over HTTPS,
+  downloads the latest weather data for a station, and extracts
+  only the needed fields (temperature, condition, humidity).
+
+  HOW IT WORKS:
+  - Opens a secure (SSL) connection to api.weather.gov
+  - Sends an HTTP GET request
+  - Waits for a response from the server
+  - Skips HTTP headers and reads the JSON body
+  - Parses only selected fields using a filter (saves memory)
+  - Converts temperature from Celsius → Fahrenheit
+  - Stores results in global variables for display
+
+  NOTE:
+  - Uses WiFiSSLClient for secure HTTPS communication
+  - Uses ArduinoJson for parsing API response
+*/
+
+
+/* ---- Weather fetch from api.weather.gov ---- */
+
+#include <WiFiSSLClient.h>        // library for secure HTTPS connections
+
+WiFiSSLClient sslClient;          // create SSL client object
+
+
 void fetchWeather() {
-    if (!client.connect(host, 80)) {
-        Serial.println("HTTP connect failed");
-        return;
+    Serial.println("Fetching weather..."); // debug message
+
+    // Connect to the NWS API (HTTPS uses port 443)
+    if (!sslClient.connect("api.weather.gov", 443)) { // try to connect
+        Serial.println("Connection failed!");         // error message
+        return;                                       // exit function
     }
 
-    String url = "/v1/current.json?key=" + apiKey + "&q=" + city + "&aqi=no";
-    client.println("GET " + url + " HTTP/1.1");
-    client.println("Host: " + String(host));
-    client.println("Connection: close");
-    client.println();
+    // Build the request URL (based on selected station)
+    String url = "/stations/" + station + "/observations/latest";
+    // example: /stations/KCAK/observations/latest
 
-    String payload;
-    while (client.connected() || client.available()) {
-        if (client.available()) {
-            payload += client.readStringUntil('\n');
+    // Send the HTTP GET request
+    sslClient.println("GET " + url + " HTTP/1.1");   // request line
+    sslClient.println("Host: api.weather.gov");      // required host header
+    sslClient.println("User-Agent: MCCCWeatherDashboard (school@example.com)");
+    // required by NWS (identifies your app)
+    sslClient.println("Accept: application/geo+json"); // request JSON format
+    sslClient.println("Connection: close");          // close after response
+    sslClient.println();                             // blank line = end of headers
+
+    // Wait for the server to respond
+    unsigned long timeout = millis();                // start timer
+    while (!sslClient.available()) {                 // wait until data arrives
+        if (millis() - timeout > 10000) {            // if >10 seconds
+            Serial.println("Timeout waiting for response!");
+            sslClient.stop();                        // close connection
+            return;                                  // exit function
         }
     }
-    client.stop();
 
-    // BREAKPOINT: inspect payload
-    // Watch: payload
+    // Skip HTTP headers (we only want the JSON body)
+    bool headersEnded = false;                       // track when headers end
+    while (sslClient.available()) {
+        String line = sslClient.readStringUntil('\n'); // read line
+        if (line == "\r") {                         // blank line = end of headers
+            headersEnded = true;                     // mark headers done
+            break;                                  // stop reading headers
+        }
+    }
 
-    int jsonStart = payload.indexOf('{');
-    if (jsonStart < 0) {
-        Serial.println("No JSON found.");
+    if (!headersEnded) {                             // safety check
+        Serial.println("Never found end of headers");
+        sslClient.stop();
         return;
     }
 
-    DynamicJsonDocument doc(2048);
-    DeserializationError err = deserializeJson(doc, payload.substring(jsonStart));
-    if (err) {
+    // Set up JSON filter (only grab needed fields → saves memory)
+    JsonDocument filter;                             // create filter object
+    filter["properties"]["temperature"]["value"] = true;
+    // include temperature
+    filter["properties"]["textDescription"] = true;
+    // include condition text
+    filter["properties"]["relativeHumidity"]["value"] = true;
+    // include humidity
+
+    // Parse JSON response using the filter
+    JsonDocument doc;                                // create JSON document
+    DeserializationError error = deserializeJson(
+        doc, sslClient,                              // read from stream
+        DeserializationOption::Filter(filter)        // apply filter
+    );
+
+    sslClient.stop();                                // close connection
+
+    if (error) {                                     // check for parse error
         Serial.print("JSON parse error: ");
-        Serial.println(err.c_str());
+        Serial.println(error.c_str());               // print error message
         return;
     }
 
-    tempC = doc["current"]["temp_c"].as<float>();
-    conditionText = doc["current"]["condition"]["text"].as<String>();
-    weatherText = "T:" + String(tempC, 1) + "C " + conditionText + "  ";
+    // Extract values from JSON
+    float tempC = doc["properties"]["temperature"]["value"].as<float>();
+    // temperature in Celsius
 
-    // TRACEPOINT: Weather updated: {tempC}C
-    // Watch: tempC, conditionText, weatherText
+    tempF = (tempC * 9.0 / 5.0) + 32.0;             // convert to Fahrenheit
 
-    Serial.println(weatherText.c_str());
+    condition = doc["properties"]["textDescription"].as<String>();
+    // weather description (e.g., "Cloudy")
 
-    
+    humidity = doc["properties"]["relativeHumidity"]["value"].as<int>();
+    // humidity %
+
+    // Build display string for LED matrix
+    weatherText = String(int(tempF)) + "F " + condition + "  ";
+    // example: "72F Cloudy"
+
+    // Print results to Serial Monitor
+    Serial.println("--- Weather Update ---");
+
+    Serial.print("Temp: ");
+    Serial.print(tempF, 1);                          // print 1 decimal place
+    Serial.println(" F");
+
+    Serial.print("Condition: ");
+    Serial.println(condition);
+
+    Serial.print("Humidity: ");
+    Serial.print(humidity);
+    Serial.println("%");
+
+    Serial.println("---------------------");
+
+    lastFetch = millis();                            // update last fetch time
 }

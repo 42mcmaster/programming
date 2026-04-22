@@ -1,12 +1,30 @@
-/* -------------------- LED Matrix Text Draw -------------------- */
-void showScrolling(const String& s) {
-    matrix.beginDraw();
-    matrix.textFont(Font_5x7);
-    matrix.textScrollSpeed(75);           // ms per pixel
-    matrix.beginText(0, 1, 0xFFFFFF);
-    matrix.print(" ");
-    matrix.print(s);
-    matrix.print(" ");
-    matrix.endText(SCROLL_LEFT);
-    matrix.endDraw();
+/*
+  LEDMatrix.ino — Scrolling Text Display
+
+  PURPOSE:
+  Displays a scrolling message across the Arduino UNO R4
+  built-in LED matrix.
+
+  HOW IT WORKS:
+  - Starts a drawing session on the LED matrix
+  - Sets font and scroll speed
+  - Loads text into the display buffer
+  - Scrolls the text from right to left
+  - Ends the drawing so it renders on screen
+
+  NOTE:
+  - This function is called repeatedly from loop()
+  - The text scrolls continuously across the display
+*/
+
+void showScrolling(const String& text) {   // function that takes text and scrolls it
+    matrix.beginDraw();                   // start drawing on the LED matrix
+    matrix.textFont(Font_5x7);            // set font (5x7 pixel characters)
+    matrix.textScrollSpeed(75);           // set scroll speed (lower = slower, higher = faster)
+    matrix.beginText(0, 1, 0xFFFFFF);     // start text at (x=0, y=1), white color (hex)
+    matrix.print(" ");                    // add leading space (creates gap before text starts)
+    matrix.print(text);                   // print the actual message
+    matrix.print(" ");                    // add trailing space (gap after text ends)
+    matrix.endText(SCROLL_LEFT);          // scroll text from right → left across display
+    matrix.endDraw();                     // finish drawing and update the LED matrix
 }

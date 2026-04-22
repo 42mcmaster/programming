@@ -6,7 +6,7 @@
 
 ## The Challenge
 
-Your weather dashboard currently shows the weather for one station (KCAK — Akron-Canton). Your job is to modify it so it **cycles through multiple cities**, showing each city's name and weather before moving to the next one.
+Your weather dashboard currently shows the weather for one station (KCAK — Akron-Canton). Your job is to modify it so it **cycles through multiple cities**, showing each city's code and weather before moving to the next one.
 
 The LED matrix should scroll something like:
 
@@ -18,11 +18,29 @@ KCAK 47F Cloudy    KJFK 52F Sunny    KLAX 68F Clear
 
 ---
 
-## What You Need to Know
+## The Ground Rule
+
+**You only need to edit ONE file: `WeatherAPI.ino`.**
+
+Leave `WeatherDashboard.ino`, `LEDMatrix.ino`, and `Secrets.h` alone. Everything you need to add lives inside `WeatherAPI.ino`.
+
+This works because `fetchWeather()` already uses a global `station` variable — all you have to do is change which station it points to before each fetch.
+
+---
+
+## Step 1 — Add a City List
+
+At the top of `WeatherAPI.ino` (above `fetchWeather()`), add an array of stations and a counter:
+
+```cpp
+String cities[] = {"KCAK", "KJFK", "KLAX"};
+int numCities = 3;
+int currentCity = 0;   // which city we're on
+```
+
+Pick **at least 3** cities. You can use the table below or find your own.
 
 ### NWS Station Codes
-
-Every airport weather station has a 4-letter ICAO code starting with K (for US stations). The NWS API uses these codes. Here are some to choose from:
 
 | Code | Location |
 |---|---|
@@ -37,56 +55,99 @@ Every airport weather station has a 4-letter ICAO code starting with K (for US s
 | KSEA | Seattle, WA |
 | KDFW | Dallas/Fort Worth, TX |
 
-You can find more station codes at: https://www.weather.gov
-
-### Arrays in Arduino
-
-To store a list of cities, you'll use an **array** — a variable that holds multiple values:
-
-```cpp
-String cities[] = {"KCAK", "KJFK", "KLAX"};
-int numCities = 3;
-int currentCity = 0;    // Index — which city we're on
-```
-
-To get the current city: `cities[currentCity]`
-
-To move to the next city (looping back to 0 at the end):
-```cpp
-currentCity = (currentCity + 1) % numCities;
-```
-
-The `%` (modulo) operator wraps the count back to 0. If `numCities` is 3, the sequence goes: 0, 1, 2, 0, 1, 2, 0, ...
+More codes at [weather.gov](https://www.weather.gov).
 
 ---
 
-## Your Task
+## Step 2 — Point the Fetch at the Current City
 
-### Requirements
+At the very **top** of `fetchWeather()`, add one line that reassigns the existing `station` global:
 
-1. Pick **at least 3 US cities** from the table above (or find your own)
-2. Store them in an array at the top of your code
-3. Modify `fetchWeather()` so it accepts a station code as input (or reads from the array)
-4. After displaying one city's weather, move to the next city
-5. The LED matrix should show the **station code** followed by the **temperature and condition** for each city
-6. After the last city, loop back to the first
+```cpp
+void fetchWeather() {
+    station = cities[currentCity];   // <-- add this line
 
-### Display Format
-
-For each city, the LED should scroll:
+    Serial.println("Fetching weather...");
+    // ...rest of the function stays exactly the same...
+}
 ```
-CODE TEMP CONDITION
-```
-For example: `KJFK 52F Sunny`
 
-The Serial Monitor should also print which city is being fetched and the data received.
+Now every time `fetchWeather()` is called, it will fetch whichever city `currentCity` is pointing to.
+
+---
+
+## Step 3 — Advance the Counter (Your Job to Fix This)
+
+After a successful fetch, we need to move to the next city. Here's a **broken starter** — paste it at the **bottom** of `fetchWeather()`, right before `lastFetch = millis();`:
+
+```cpp
+// Move to the next city for next fetch
+currentCity = currentCity + 1;
+// 🤔 Problem: what happens when currentCity reaches numCities?
+//    cities[3] doesn't exist. This will crash.
+//    Fix it so the counter wraps back to 0.
+```
+
+**Your job:** fix this so `currentCity` cycles `0 → 1 → 2 → 0 → 1 → 2 → ...` forever instead of running off the end of the array.
 
 ### Hints
 
-- You'll need to change the `station` variable from a single `String` to an array of `String`s
-- The `fetchWeather()` function currently uses the global `station` variable — you could either change that global before calling `fetchWeather()`, or modify the function to take a parameter
-- Make sure you update `lastFetch` properly so each city gets its turn
-- Think about timing — you probably want each city to display for a reasonable amount of time before switching
+Two valid approaches — either one gets full credit:
+
+- **Option A:** Use an `if` statement to reset the counter back to 0 when it's too big.
+- **Option B:** Use the modulo (`%`) operator — the one-line trick from the slides. The traffic light example is the same shape as this problem.
+
+If you're not sure what modulo is, there's a full reference in this folder called `modulo_explainer.md`.
+
+---
+
+## Step 4 — Include the Station Code in the Display
+
+In `fetchWeather()`, find this line:
+
+```cpp
+weatherText = String(int(tempF)) + "F " + condition + "  ";
+```
+
+Change it so the station code shows up first:
+
+```cpp
+weatherText = station + " " + String(int(tempF)) + "F " + condition + "  ";
+```
+
+Now the LED will show `KJFK 52F Sunny` instead of just `52F Sunny`.
+
+---
+
+## Step 5 — Test It
+
+Upload and watch the Serial Monitor. You should see:
+
+```
+Fetching weather...
+--- Weather Update ---
+Temp: 47.2 F
+Condition: Cloudy
+Humidity: 72%
+---------------------
+Fetching weather...
+--- Weather Update ---
+Temp: 52.4 F
+Condition: Sunny
+...
+```
+
+And the LED matrix should scroll the city code + weather, advancing to the next city each time a new fetch fires.
+
+### Quick Tip — Faster Rotation for Testing
+
+By default, `fetchInterval` is 5 minutes. That's a long wait to see the rotation work. For testing, temporarily change it in `WeatherDashboard.ino`:
+
+```cpp
+unsigned long fetchInterval = 30000;   // 30 seconds — TESTING ONLY
+```
+
+**Change it back to 300000 when you're done testing** — please don't hammer the NWS servers.
 
 ---
 
@@ -94,36 +155,40 @@ The Serial Monitor should also print which city is being fetched and the data re
 
 If you finish early, try one of these:
 
-### Challenge A — Add a Temperature Comparison
-After cycling through all cities, display a summary line:
+### Challenge A — Temperature Comparison
+
+Track every city's temperature as you fetch. After all cities have been visited, scroll a summary line:
+
 ```
 Hottest: KMIA 82F  Coldest: KDEN 31F
 ```
-You'll need to track the min and max temperatures as you fetch each city.
 
 ### Challenge B — Weather Alerts
-Check if any city is below freezing (32°F) or above 100°F. If so, flash the LED matrix on and off a few times before showing that city's weather, as a visual alert.
 
-### Challenge C — Detailed Serial Log
-Print a formatted table to the Serial Monitor after all cities have been fetched:
+If any city comes back below freezing (32°F) or above 100°F, flash the LED matrix a few times before showing that city's weather as a visual alert.
+
+### Challenge C — Detailed Serial Report
+
+After all cities have been fetched, print a formatted table to the Serial Monitor:
+
 ```
 === Weather Report ===
-KCAK  Akron-Canton    47F  Cloudy       72%
-KJFK  New York        52F  Sunny        45%
-KLAX  Los Angeles     68F  Clear        38%
+KCAK   47F  Cloudy       72%
+KJFK   52F  Sunny        45%
+KLAX   68F  Clear        38%
 ======================
 ```
-You'll need to store results for all cities and print them together.
 
 ---
 
 ## Submission Checklist
 
 - [ ] At least 3 cities in your array
-- [ ] Dashboard cycles through all cities, displaying each on the LED matrix
-- [ ] Station code is visible before each city's weather
+- [ ] Only `WeatherAPI.ino` was modified
+- [ ] Dashboard cycles through all cities and loops back to the first
+- [ ] Station code appears before the weather on the LED matrix
 - [ ] Serial Monitor shows each fetch and the data received
 - [ ] Code compiles with no errors
-- [ ] Dashboard loops back to the first city after showing the last one
+- [ ] Can explain **why** your fix works (modulo OR if-statement — be able to describe it)
 
 **Show your multi-city dashboard to your instructor!**
